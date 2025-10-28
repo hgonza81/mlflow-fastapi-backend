@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    ports:
+      - "${API_PORT:-8001}:${API_PORT:-8001}"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app

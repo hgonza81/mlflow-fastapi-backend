@@ -1,7 +1,13 @@
+"""
+MLFlow FastAPI Backend - Main Application Module
+
+This module contains the main FastAPI application instance and configuration.
+It sets up the API routes, health checks, and server startup configuration
+using Pydantic Settings for environment-based configuration management.
+"""
+
 from fastapi import FastAPI
 from .routers.lead_scoring import router as lead_scoring_router
-from .config.config import get_settings
-
 
 # Create the FastAPI instance
 app = FastAPI(
@@ -10,22 +16,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring service availability.
+    
+    Returns:
+        dict: Status information including service health and name
+    """
+    return {"status": "healthy", "service": "MLFlow FastAPI Backend"}
+
 # Router registration
 app.include_router(lead_scoring_router)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    # 👇 Leer configuración desde Pydantic Settings
-    settings = get_settings()
-
-    # Mostrar valores cargados (útil para debug)
-    print(f"Starting server at {settings.api.host}:{settings.api.port} (debug={settings.app.debug})")
-
-    uvicorn.run(
-        "backend.app.main:app",
-        host=settings.api.host,
-        port=settings.api.port,
-        reload=settings.app.debug,  # reload solo si debug=True
-        env_file="backend/.env",     # opcional, refuerza la carga del .env
-    )

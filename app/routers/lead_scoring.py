@@ -1,10 +1,13 @@
-from typing import Any, Coroutine
+"""Lead scoring API router.
+
+This module defines the API endpoints for lead scoring functionality,
+including score calculation and health check endpoints.
+"""
 
 from fastapi import APIRouter
-from backend.app.schemas.lead_scoring_request import LeadScoringRequest
-from backend.app.schemas.lead_scoring_response import LeadScoringResponse
+from ..schemas.lead_scoring_request import LeadScoringRequest
+from ..schemas.lead_scoring_response import LeadScoringResponse
 
-# Create router with prefix and tags
 router = APIRouter(
     prefix="/lead-scoring",
     tags=["lead-scoring"],
@@ -13,12 +16,5 @@ router = APIRouter(
 
 @router.post("/score", response_model=LeadScoringResponse)
 async def score(request: LeadScoringRequest) -> LeadScoringResponse:
+    """Calculate lead scoring based on request data."""
     return LeadScoringResponse(lead_id=request.lead_id, score=25)
-
-@router.get("/live")
-async def health():
-    return {"status": "ok"}
-
-@router.get("/ready")
-async def ready():
-    return {"status": "ok"}
