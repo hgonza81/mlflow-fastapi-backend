@@ -7,24 +7,26 @@ using Pydantic Settings for environment-based configuration management.
 """
 
 from fastapi import FastAPI
+from .core.logging import configure_logging, LoggingMiddleware
+from .core.exceptions import register_exception_handlers
+from .routers.health import router as health_router
 from .routers.lead_scoring import router as lead_scoring_router
+
+configure_logging()
 
 # Create the FastAPI instance
 app = FastAPI(
     title="MLFlow FastAPI Backend",
     description="A minimal FastAPI app for ML model serving and API endpoints",
-    version="1.0.0"
+    version="1.0.0",
 )
 
-# Health check endpoint
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for monitoring service availability.
-    
-    Returns:
-        dict: Status information including service health and name
-    """
-    return {"status": "healthy", "service": "MLFlow FastAPI Backend"}
+# Exception Handlers
+register_exception_handlers(app)
 
-# Router registration
+# Middleware
+app.add_middleware(LoggingMiddleware)
+
+# Routers
+app.include_router(health_router)
 app.include_router(lead_scoring_router)

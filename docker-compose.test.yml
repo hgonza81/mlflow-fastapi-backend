@@ -1,0 +1,55 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - APP_ENV=test
+      - APP_DEBUG=false
+      - API_HOST=0.0.0.0
+      - API_PORT=8001
+    volumes:
+      # Mount tests for hot reload during development
+      - ./tests:/app/tests
+      - ./app:/app/app
+      # Mount test results output
+      - ./test-results:/app/test-results
+    working_dir: /app
+    command: python -m pytest tests/ -v --tb=short
+
+  test-coverage:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - APP_ENV=test
+      - APP_DEBUG=false
+    volumes:
+      - ./tests:/app/tests
+      - ./app:/app/app
+      - ./test-results:/app/test-results
+      - ./htmlcov:/app/htmlcov
+    working_dir: /app
+    command: >
+      python -m pytest tests/
+      --cov=app
+      --cov-report=html:/app/htmlcov
+      --cov-report=xml:/app/test-results/coverage.xml
+      --cov-report=term-missing
+      --junitxml=/app/test-results/test-results.xml
+      -v
+
+  test-watch:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - APP_ENV=test
+      - APP_DEBUG=true
+    volumes:
+      - ./tests:/app/tests
+      - ./app:/app/app
+    working_dir: /app
+    command: python -m pytest tests/ -v --tb=short -f
+    stdin_open: true
+    tty: true
